@@ -18,7 +18,7 @@ import java.time.format.DateTimeParseException;
 import java.util.Optional;
 import java.util.logging.Logger;
 
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = {"http://localhost:3000", "https://linktoolkit-grxs8s4ut-siddharthas-projects-163dfa3e.vercel.app"})
 @RestController
 @RequestMapping("/")
 public class UrlController {
