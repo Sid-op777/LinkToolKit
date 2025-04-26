@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -109,9 +110,20 @@ public class UrlController {
             Url url = optionalUrl.get();
             url.setLastVisited(Instant.now());
             urlService.shortenUrl(url.getLongUrl(), url.getCreatedAt(), url.getExpiresAt(), url.getUserId()); // Update lastVisited
+            response.setHeader("ngrok-skip-browser-warning", "true"); // does not work
             response.sendRedirect(url.getLongUrl());
         } else {
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
+        }
+    }
+
+    @GetMapping("/ping")
+    public ResponseEntity<String> ping() {
+        try {
+            return ResponseEntity.status(HttpStatus.OK).body("Server is online");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Server is offline");
         }
     }
 }
