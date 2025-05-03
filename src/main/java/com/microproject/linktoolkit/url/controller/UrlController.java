@@ -98,20 +98,23 @@ public class UrlController {
             }
         }
 
-        Url shortened = urlService.shortenUrl(longUrl, now, expiresAtInstant, userId);
+        Url shortened = urlService.shortenUrl(longUrl, now, expiresAtInstant,now, userId);
         return ResponseEntity.ok(shortened);
     }
 
     @GetMapping("/{shortCode}")
     public void redirect(@PathVariable String shortCode, HttpServletResponse response) throws IOException {
-        //TODO : making duplicates everytime we call the get endpoint, fix the default values in put too
         Optional<Url> optionalUrl = urlService.getOriginalUrl(shortCode);
         if (optionalUrl.isPresent()) {
             Url url = optionalUrl.get();
             url.setLastVisited(Instant.now());
-            urlService.shortenUrl(url.getLongUrl(), url.getCreatedAt(), url.getExpiresAt(), url.getUserId()); // Update lastVisited
-            response.setHeader("ngrok-skip-browser-warning", "true"); // does not work
-            response.sendRedirect(url.getLongUrl());
+
+            response.setStatus(HttpServletResponse.SC_FOUND); // 302
+            response.setHeader("Location", url.getLongUrl());
+            response.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
+            response.setHeader("Pragma", "no-cache");
+            response.setHeader("Expires", "0");
+
         } else {
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
         }

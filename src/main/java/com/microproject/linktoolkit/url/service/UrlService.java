@@ -23,7 +23,7 @@ public class UrlService {
         this.urlRepository = urlRepository;
     }
 
-    public Url shortenUrl(String longUrl, Instant now, Instant expiresAt, Long userId) {
+    public Url shortenUrl(String longUrl, Instant now, Instant expiresAt, Instant lastVisitedAt, Long userId) {
         String shortUrl = generateShortCode(longUrl);
 
         Url url = new Url();
@@ -32,6 +32,7 @@ public class UrlService {
         url.setCreatedAt(now);
         url.setExpiresAt(expiresAt);
         url.setUserId(userId);
+        url.setLastVisited(lastVisitedAt);
 
         return urlRepository.save(url);
     }
