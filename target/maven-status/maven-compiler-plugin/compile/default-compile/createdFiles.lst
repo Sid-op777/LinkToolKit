@@ -1,0 +1,5 @@
+com\microproject\linktoolkit\url\controller\UrlController.class
+com\microproject\linktoolkit\url\entity\Url.class
+com\microproject\linktoolkit\url\service\UrlService.class
+com\microproject\linktoolkit\LinkToolkitApplication.class
+com\microproject\linktoolkit\url\repository\UrlRepository.class
