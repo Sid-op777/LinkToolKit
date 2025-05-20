@@ -4,11 +4,11 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.Instant;
 
-@Document(collection = "urls")
+@Entity
+@Table(name = "urls")
 @Data //getters and setters through lombok
 @NoArgsConstructor
 @AllArgsConstructor
@@ -17,11 +17,14 @@ public class Url {
     @Id
     private String id; // Will store the short URL code directly as the ID
 
+    @Column(nullable = false, length = 2048)
     private String longUrl;
+
     private Instant createdAt;
     private Instant expiresAt;
     private Instant lastVisited;
 
+    @Column(name = "user_id")
     private Long userId; // temporary for now (no auth yet)
 
 }

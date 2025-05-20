@@ -1,5 +1,6 @@
 package com.microproject.linktoolkit.url.controller;
 
+import com.microproject.linktoolkit.url.controller.dto.UrlRequest;
 import com.microproject.linktoolkit.url.entity.Url;
 import com.microproject.linktoolkit.url.service.UrlService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -7,9 +8,11 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.servlet.http.HttpServletResponse;
@@ -17,7 +20,6 @@ import java.io.IOException;
 import java.time.*;
 import java.time.format.DateTimeParseException;
 import java.util.Optional;
-import java.util.logging.Logger;
 
 @CrossOrigin(origins = {"http://localhost:3000", "https://linktoolkit-ui.vercel.app/"})
 @RestController
@@ -27,7 +29,9 @@ public class UrlController {
     @Autowired
     private UrlService urlService;
 
-
+    //TODO:fix this javadoc
+    //TODO:update swagger
+    //Todo: whitelabel, no fallback
     /**
      * Creates a shortened URL with an optional expiration timestamp or duration.
      *
@@ -40,13 +44,7 @@ public class UrlController {
      * If neither is provided, the default expiration is 1 month from the current time.
      * Period values exceeding 5 years will be rejected.
      *
-     * @param longUrl The original long URL to be shortened (required).
-     * @param life Optional ISO-8601 period (e.g. "P3D", "P1M", "P1Y2M"). Defaults to "P1M" if not provided.
-     * @param expiresAt Optional ISO-8601 expiration timestamp (e.g. "2025-05-01T12:00:00Z").
-     *                  If provided, it overrides the {@code life} parameter.
-     * @param userId Optional user ID to associate the shortened URL with a specific user.
-     * @return A ResponseEntity containing the shortened URL information if successful,
-     *         or a 400 error for invalid inputs.
+     *
      */
     @Operation(
             summary = "Shorten a URL",
@@ -66,39 +64,38 @@ public class UrlController {
     })
     @PostMapping("/shorten")
     public ResponseEntity<Url> createShortUrl(
-            @RequestParam String longUrl,
-            @RequestParam(required = false, defaultValue = "P1M") String life,
-            @RequestParam(required = false) String expiresAt,
-            @RequestParam(required = false) Long userId
+            @Valid @RequestBody UrlRequest request,
+            @AuthenticationPrincipal String userEmail
     ) {
         Instant now = Instant.now();
         Instant expiresAtInstant;
 
-        if (expiresAt == null) {
-            try {
-                Period period = Period.parse(life);
+        try{
+            if(request.getExpiresAt() != null) {
+                expiresAtInstant = Instant.parse(request.getExpiresAt());
+            }
+            else {
+                Period period = Period.parse(request.getLife());
 
                 if (period.getYears() > 5) {
                     return ResponseEntity.badRequest().build();
                 }
 
-                // Add period to now (convert Instant to LocalDateTime temporarily)
-                LocalDateTime localNow = LocalDateTime.ofInstant(now, ZoneOffset.UTC);
-                LocalDateTime futureLocal = localNow.plus(period);
-                expiresAtInstant = futureLocal.toInstant(ZoneOffset.UTC);
+                LocalDateTime future = LocalDateTime.ofInstant(now, ZoneOffset.UTC).plus(period);
+                expiresAtInstant = future.toInstant(ZoneOffset.UTC);
+            }
 
-            } catch (DateTimeParseException e) {
-                return ResponseEntity.badRequest().build();
-            }
-        } else {
-            try {
-                expiresAtInstant = Instant.parse(expiresAt);
-            } catch (DateTimeParseException e) {
-                return ResponseEntity.badRequest().build();
-            }
+        }
+        catch (DateTimeParseException e){
+            return ResponseEntity.badRequest().build();
         }
 
-        Url shortened = urlService.shortenUrl(longUrl, now, expiresAtInstant,now, userId);
+        Long userId = null;
+        if (userEmail != null) {
+            userId = urlService.resolveUserIdByEmail(userEmail);
+        }
+
+        Url shortened = urlService.shortenUrl(request.getLongUrl(), now, expiresAtInstant,now, userId);
         return ResponseEntity.ok(shortened);
     }
 
