@@ -31,12 +31,10 @@ build/
 ### VS Code ###
 .vscode/
 
-Project Description File.md
-project self notes.txt
+/target
 .env
 
 .mvn/
-.idea/
 
 # Windows
 Thumbs.db

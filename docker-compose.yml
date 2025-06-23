@@ -1,0 +1,26 @@
+services:
+  app:
+    build: . # This tells Docker to use the Dockerfile in the current directory
+    container_name: linktoolkit-app
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+    env_file:
+      - .env # This loads all variables from our .env file into the container
+
+  postgres:
+    image: postgres:15
+    container_name: linktoolkit-db
+    environment:
+      # These now read from your .env file or default to these values
+      POSTGRES_DB: ${SPRING_DATASOURCE_DB_NAME:-linktoolkit}
+      POSTGRES_USER: ${SPRING_DATASOURCE_USERNAME:-user}
+      POSTGRES_PASSWORD: ${SPRING_DATASOURCE_PASSWORD:-password}
+    ports:
+      - "5432:5432"
+    volumes:
+      - linktoolkit-data:/var/lib/postgresql/data
+
+volumes:
+  linktoolkit-data:
