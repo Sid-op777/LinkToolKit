@@ -6,12 +6,10 @@ import com.microproject.linktoolkit.analytics.dto.*;
 import com.maxmind.geoip2.DatabaseReader;
 import com.maxmind.geoip2.model.CityResponse;
 import com.microproject.linktoolkit.link.LinkRepository;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import ua_parser.Client;
 import ua_parser.Parser;
 import org.springframework.data.domain.PageRequest;
 

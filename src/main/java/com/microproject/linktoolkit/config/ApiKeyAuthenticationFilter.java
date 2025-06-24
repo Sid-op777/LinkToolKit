@@ -1,6 +1,5 @@
 package com.microproject.linktoolkit.config;
 
-import com.microproject.linktoolkit.user.User;
 import com.microproject.linktoolkit.user.UserRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
