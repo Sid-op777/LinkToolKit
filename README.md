@@ -90,6 +90,9 @@ Follow these instructions to get the project running on your local machine for d
     AZURE_STORAGE_ACCOUNT_NAME=your_azure_storage_account_name
     AZURE_STORAGE_ACCOUNT_KEY=your_azure_storage_account_key
     AZURE_STORAGE_ENDPOINT=https://your_account_name.blob.core.windows.net/
+
+    # Redoc
+    APP_DOCS_URL=http://localhost:63342
     ```
 3.  **Run the application:**
     Use Docker Compose to build the application image and start both the Spring Boot app and PostgreSQL database containers.
