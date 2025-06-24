@@ -13,13 +13,16 @@ public class WebConfig {
     @Value("${app.frontend-url}")
     private String frontendUrl;
 
+    @Value("${app.docs-url}")
+    private String docsUrl;
+
     @Bean
     public WebMvcConfigurer corsConfigurer() {
         return new WebMvcConfigurer() {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
-                registry.addMapping("/api/**") // Apply CORS to all /api/ endpoints
-                        .allowedOrigins(frontendUrl) // Allow requests from our frontend
+                registry.addMapping("/**")
+                        .allowedOrigins(frontendUrl, docsUrl) // Allow requests from our frontend AND the docs site
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS") // Allowed HTTP methods
                         .allowedHeaders("*") // Allow all headers
                         .allowCredentials(true); // Allow cookies and authentication headers
