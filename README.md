@@ -48,7 +48,7 @@ The system is designed with a clean separation of concerns, utilizing cloud serv
 
 The API is documented using the OpenAPI 3 standard.
 
-*   **Public API Documentation (Redoc):** A clean, user-friendly view of the API is available at [**api.nx7.tech/docs**](https://api.nx7.tech/docs).
+*   **Public API Documentation (Redoc):** A clean, user-friendly view of the API is available at [**api.nx7.tech**](https://api.nx7.tech).
 *   **Developer API Reference (Swagger UI):** While running locally, a Swagger UI instance is available for interactive API testing at `http://localhost:8080/swagger-ui.html`.
 
 ## Getting Started
