@@ -29,7 +29,7 @@ public class AnalyticsConfig {
             return null;
         }
         return new DatabaseReader.Builder(geoIpDatabaseResource.getInputStream())
-                .fileMode(Reader.FileMode.MEMOMEMORY_MAPPEDRY)
+                .fileMode(Reader.FileMode.MEMORY_MAPPED)
                 .build();
     }
 
