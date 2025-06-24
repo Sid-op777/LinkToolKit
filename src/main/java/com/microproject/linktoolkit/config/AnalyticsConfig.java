@@ -25,7 +25,7 @@ public class AnalyticsConfig {
         // This bean provides the reader for the MaxMind GeoIP database.
         // It's configured to handle cases where the file might not be found.
         if (!geoIpDatabaseResource.exists()) {
-            log.error("GeoIP database file not found at path: {}", geoIpDatabaseResource.getFilename())
+            log.error("GeoIP database file not found at path: {}", geoIpDatabaseResource.getFilename());
             throw new IOException("GeoIP database file not found.");
         }
 
