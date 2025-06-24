@@ -14,6 +14,7 @@ import ua_parser.Parser;
 import java.io.IOException;
 
 @Configuration
+@Slf4j
 public class AnalyticsConfig {
 
     @Value("${maxmind.geoip.database.path}")
@@ -24,11 +25,21 @@ public class AnalyticsConfig {
         // This bean provides the reader for the MaxMind GeoIP database.
         // It's configured to handle cases where the file might not be found.
         if (!geoIpDatabaseResource.exists()) {
-            // In a real production scenario, you might want to fail startup or log a severe warning.
-            // For this project, returning null and handling it in the service is acceptable.
-            return null;
+            log.error("GeoIP database file not found at path: {}", geoIpDatabaseResource.getFilename())
+            throw new IOException("GeoIP database file not found.");
         }
-        return new DatabaseReader.Builder(geoIpDatabaseResource.getInputStream())
+
+        File tempDbFile = File.createTempFile("geolite2-", ".mmdb");
+        tempDbFile.deleteOnExit();
+
+        try (InputStream inputStream = geoIpDatabaseResource.getInputStream();
+            FileOutputStream outputStream = new FileOutputStream(tempDbFile)) {
+            FileCopyUtils.copy(inputStream, outputStream);
+        }
+
+        log.info("GeoIP database copied to temporary file: {}", tempDbFile.getAbsolutePath());
+
+        return new DatabaseReader.Builder(tempDbFile)
                 .fileMode(Reader.FileMode.MEMORY_MAPPED)
                 .build();
     }
