@@ -58,9 +58,31 @@ public class LinkController {
     public ResponseEntity<List<LinkResponse>> getUserLinks(Authentication authentication) {
         // This endpoint requires authentication, which will be enforced by Spring Security.
         // If the code reaches here, authentication is valid.
-        String userEmail = authentication.getName();
-        List<LinkResponse> links = linkService.getLinksForUser(userEmail);
-        return ResponseEntity.ok(links);
+        try {
+            String userEmail = authentication.getName();
+            List<LinkResponse> links = linkService.getLinksForUser(userEmail);
+            return ResponseEntity.ok(links);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @GetMapping("/l")
+    public ResponseEntity<LinkResponse> getLinkDetails(
+            @RequestParam("alias") String alias,
+            @CookieValue(name = SESSION_COOKIE_NAME, required = false) UUID anonymousSessionId,
+            Authentication authentication
+    ) {
+        boolean hasAuth = authentication != null && authentication.isAuthenticated();
+        boolean hasSession = anonymousSessionId != null;
+
+        if (!hasAuth && !hasSession) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        LinkResponse response = linkService.getLinkDetails(alias);
+        return ResponseEntity.ok(response);
     }
 
     private void setSessionCookie(HttpServletResponse response, UUID sessionId) {

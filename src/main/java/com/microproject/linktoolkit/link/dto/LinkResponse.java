@@ -11,6 +11,7 @@ import java.time.Instant;
  * @param expiresAt The timestamp when the link will expire.
  */
 public record LinkResponse(
+        String id,
         String shortUrl,
         String longUrl,
         long totalClicks,

@@ -3,6 +3,7 @@ package com.microproject.linktoolkit.link;
 import com.microproject.linktoolkit.analytics.ClickRepository;
 import com.microproject.linktoolkit.exception.AliasAlreadyExistsException;
 import com.microproject.linktoolkit.exception.ReservedAliasException;
+import com.microproject.linktoolkit.exception.ResourceNotFoundException;
 import com.microproject.linktoolkit.link.dto.CreateLinkRequest;
 import com.microproject.linktoolkit.link.dto.CreateLinkResponse;
 import com.microproject.linktoolkit.link.dto.LinkResponse;
@@ -15,8 +16,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.Period;
-import java.time.temporal.ChronoUnit;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -34,7 +36,7 @@ public class LinkService {
 
     // A simple set of reserved words to prevent route conflicts
     private static final Set<String> RESERVED_ALIASES = Set.of(
-            "api", "auth", "user", "links", "analytics", "qrcode", "bulk", "login", "register", "logout", "admin"
+            "api", "auth", "user", "links", "analytics", "qrcode", "bulk", "login", "register", "logout", "admin", "health"
     );
 
     // Injecting the base URL from application.properties
@@ -94,25 +96,21 @@ public class LinkService {
         final Period defaultExpiry = Period.ofMonths(1);
         final Period maxExpiry = Period.ofYears(5);
 
-        if (expiryString == null || expiryString.isBlank()) {
-            return Instant.now().plus(defaultExpiry.getDays() + (long) defaultExpiry.getMonths() * 30, ChronoUnit.DAYS);
-        }
+        try{
+            Period requestedPeriod = (expiryString == null || expiryString.isBlank()) ? defaultExpiry : Period.parse(expiryString);
 
-        try {
-            Period requestedPeriod = Period.parse(expiryString);
-            long requestedDays = requestedPeriod.toTotalMonths() * 30 + requestedPeriod.getDays();
-            long maxDays = maxExpiry.toTotalMonths() * 30 + maxExpiry.getDays();
+            LocalDate now = LocalDate.now();
+            LocalDate expiryDate = now.plus(requestedPeriod);
+            LocalDate maxAllowedDate = now.plus(maxExpiry);
 
-            if (requestedDays > maxDays) {
+            if (expiryDate.isAfter(maxAllowedDate)) {
                 throw new IllegalArgumentException("Expiry period cannot exceed 5 years.");
             }
-            return Instant.now().plus(requestedDays, ChronoUnit.DAYS);
-        } catch (Exception e) {
+            return expiryDate.atStartOfDay(ZoneId.systemDefault()).toInstant();
+        }catch (Exception e) {
             throw new IllegalArgumentException("Invalid expiry period format. Please use ISO-8601 period format (e.g., P1M, P10D).");
         }
     }
-
-    // Add this method inside the LinkService class
 
     public List<LinkResponse> getLinksForUser(String userEmail) {
         User user = userRepository.findByEmail(userEmail)
@@ -129,6 +127,7 @@ public class LinkService {
                     long totalClicks = clickRepository.countByLinkId(link.getId());
 
                     return new LinkResponse(
+                            link.getShortAlias(),
                             baseUrl + "/" + link.getShortAlias(),
                             link.getLongUrl(),
                             totalClicks,
@@ -137,5 +136,26 @@ public class LinkService {
                     );
                 })
                 .collect(Collectors.toList());
+    }
+
+    public LinkResponse getLinkDetails(String shortAlias) {
+        Optional<Link> optionalLink = linkRepository.findByShortAlias(shortAlias);
+
+        if (!optionalLink.isPresent()) {
+            throw new ResourceNotFoundException("Short link not found: " + shortAlias);
+        }
+
+        Link link = optionalLink.get();
+
+        long totalClicks = clickRepository.countByLinkId(link.getId());
+
+        return new LinkResponse(
+                link.getShortAlias(),
+                baseUrl + "/" + link.getShortAlias(),
+                link.getLongUrl(),
+                totalClicks,
+                link.getCreatedAt(),
+                link.getExpiresAt()
+        );
     }
 }

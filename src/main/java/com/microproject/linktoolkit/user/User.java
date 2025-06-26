@@ -40,6 +40,10 @@ public class User implements UserDetails {
     @JsonIgnore // IMPORTANT: Never serialize the API key hash either
     private String apiKeyHash;
 
+    @Column(name = "refresh_token_hash")
+    @JsonIgnore
+    private String refreshTokenHash;
+
     @Column(name = "api_key_public_id", unique = true)
     private String apiKeyPublicId;
 

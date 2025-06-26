@@ -5,9 +5,11 @@ package com.microproject.linktoolkit.analytics;
 import com.microproject.linktoolkit.analytics.dto.*;
 import com.maxmind.geoip2.DatabaseReader;
 import com.maxmind.geoip2.model.CityResponse;
+import com.microproject.linktoolkit.link.Link;
 import com.microproject.linktoolkit.link.LinkRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import ua_parser.Parser;
@@ -33,6 +35,9 @@ public class AnalyticsService {
     private final LinkRepository linkRepository;
     private final DatabaseReader geoIpDatabaseReader;
     private final Parser userAgentParser;
+
+    @Value("${app.base-url}")
+    private String baseUrl;
 
     @Async
     public void logClick(UUID linkId, String ipAddress, String userAgent, String referer) {
@@ -80,7 +85,13 @@ public class AnalyticsService {
         }
     }
 
-    public LinkAnalyticsResponse getAnalyticsForLink(UUID linkId) {
+    public LinkAnalyticsResponse getAnalyticsForLink(UUID linkId, String alias) {
+        Optional<Link> link = linkRepository.findById(linkId);
+        String longUrl = "";
+        if(link.isPresent()) {
+            longUrl = link.get().getLongUrl();
+        }
+        String shortUrl = baseUrl + "/" +alias;
         // 1. Get total clicks
         long totalClicks = clickRepository.countByLinkId(linkId);
 
@@ -115,6 +126,9 @@ public class AnalyticsService {
 
         // 4. Assemble and return the final response object
         return new LinkAnalyticsResponse(
+                alias,
+                longUrl,
+                shortUrl,
                 totalClicks,
                 clicksOverTime,
                 topReferrers,

@@ -40,7 +40,7 @@ public class AnalyticsController {
         }
 
         // If the check passes, proceed to get the analytics data.
-        LinkAnalyticsResponse analytics = analyticsService.getAnalyticsForLink(link.getId());
+        LinkAnalyticsResponse analytics = analyticsService.getAnalyticsForLink(link.getId(), alias);
 
         return ResponseEntity.ok(analytics);
     }

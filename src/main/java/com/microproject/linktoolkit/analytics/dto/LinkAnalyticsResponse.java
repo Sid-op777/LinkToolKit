@@ -7,6 +7,9 @@ import java.util.List;
  * This structure is directly consumed by the frontend to build charts.
  */
 public record LinkAnalyticsResponse(
+        String id,
+        String longUrl,
+        String shortUrl,
         long totalClicks,
         List<TimeSeriesDataPoint> clicksOverTime,
         List<CategoryDataPoint> referrers,

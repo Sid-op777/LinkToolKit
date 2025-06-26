@@ -1,5 +1,6 @@
 com\microproject\linktoolkit\link\Link$LinkBuilder.class
 com\microproject\linktoolkit\analytics\ClickRepository$ClickCountPerDay.class
+com\microproject\linktoolkit\health\HealthController.class
 com\microproject\linktoolkit\link\dto\CreateLinkResponse.class
 com\microproject\linktoolkit\exception\AliasAlreadyExistsException.class
 com\microproject\linktoolkit\config\JwtAuthenticationFilter.class
@@ -11,6 +12,7 @@ com\microproject\linktoolkit\auth\dto\AuthResponse.class
 com\microproject\linktoolkit\analytics\dto\CategoryDataPoint.class
 com\microproject\linktoolkit\analytics\dto\UrlAnalyticsResponse$UrlAnalyticsResponseBuilder.class
 com\microproject\linktoolkit\auth\AuthController.class
+com\microproject\linktoolkit\util\CookieUtil.class
 com\microproject\linktoolkit\config\ApiKeyAuthenticationFilter.class
 com\microproject\linktoolkit\analytics\dto\LinkAnalyticsResponse.class
 com\microproject\linktoolkit\link\Link.class

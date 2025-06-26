@@ -68,7 +68,6 @@ public interface LinkRepository extends JpaRepository<Link, UUID> {
      */
     List<Link> findByExpiresAtBefore(Instant now);
 
-    // ... all your existing findBy... and existsBy... methods
 
     /**
      * Deletes all links that have expired before the given timestamp in a single, efficient query.

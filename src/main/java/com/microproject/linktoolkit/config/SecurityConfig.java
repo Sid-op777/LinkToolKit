@@ -28,6 +28,7 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/",
                                 "/{alias}",
+                                "/api/health",
                                 "/api/auth/**",
                                 "/api/links",
                                 "/api/qrcode",
